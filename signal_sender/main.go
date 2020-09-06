@@ -23,7 +23,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	signal := os.Args[2]
+	signal, err := strconv.Atoi(os.Args[2])
 	if err != nil {
 		help()
 		os.Exit(3)
@@ -35,7 +35,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	err = syscall.Kill(pid, syscall.Signal(signal))
+	err = syscall.Kill(pid, syscall.SIGINT)
 	//	if(syscall.Kill(pid)){
 	//       help();
 	//        os.Exit(3);

@@ -1,1 +1,4 @@
 envia_sinal
+main
+signal_handler/main
+signal_sender/main
