@@ -68,10 +68,10 @@ int main(int argc, char const *argv[])
         printf("Sending number...\n");
 
         //read response from socket and put in prime variable
-        read(sock , prime_variable, 20);
+        read(sock,prime_variable, 2);
         
         // test if prime variable is 1 or 0
-        if(strcmp(prime_variable, "1") == 0) {
+        if(atoi(prime_variable) == 1) {
 			printf("Received: is prime\n\n");
 		} else {
 			printf("Received: isn't prime\n\n");

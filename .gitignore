@@ -1,4 +1,3 @@
 envia_sinal
-main
-signal_handler/main
-signal_sender/main
+sockets/sender
+sockets/receiver

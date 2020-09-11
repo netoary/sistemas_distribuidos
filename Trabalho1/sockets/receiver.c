@@ -26,9 +26,6 @@ int is_prime(int numero){
 
 int main(int argc, char const *argv[]) 
 {   
-    int received_num;
-    char response[1];
-
     //start of block of code from https://www.geeksforgeeks.org/socket-programming-cc/
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
@@ -74,9 +71,10 @@ int main(int argc, char const *argv[])
 
     char message[20];
     char response[1];
+    int received_num;
 
     // read from socket and test if is "0"
-    while(read(new_socket , message, 20) != -1 && strcmp(message, "0")) {
+    while(read(new_socket , message, 20) != -1 && strcmp(message, "0")) { //  strcmp(message, "0"))
         
         printf("Received number: %s\n", message);
         
@@ -86,14 +84,14 @@ int main(int argc, char const *argv[])
         // store in response if received_num is prime
         sprintf(response, "%d", is_prime(received_num));
 
-        if(response == "0"){
+        if(atoi(response) == 1){
             printf("Sending response: is prime\n\n");
         } else {
             printf("Sending response: isn't prime\n\n");
         }
         
         // send response back
-        send(new_socket, response, 1, 0);
+        send(new_socket, response, 2, 0);
     }
 
 
