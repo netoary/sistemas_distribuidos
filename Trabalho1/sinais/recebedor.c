@@ -1,30 +1,42 @@
+/*
+* References:
+* https://linuxhint.com/signal_handlers_c_programming_language/
+* https://www.geeksforgeeks.org/signals-c-language/
+* https://en.wikipedia.org/wiki/Busy_waiting#Example_C_code
+* https://stackoverflow.com/questions/4869507/how-to-pause-in-c
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 
+// help Function, called when an error occurs
 void help(){
     printf("Este programa recebe como parâmetros o número 0 para busy wait e 1 para blocking wait.\n");
 }
 
+// Function called when signal SIGUSR1 is received
 void handle_SIGUSR1(int signal){
     printf("SIGUSR1 recebido.\n");
 }
 
+// Function called when signal SIGUSR2 is received
 void handle_SIGUSR2(int signal){
     printf("SIGUSR2 recebido.\n");
 }
 
+// Function called when signal SIGINT is received
 void handle_SIGINT(int signal){
     printf("SIGINT recebido.\n");
     exit(0);
 }
 
-
 int main(int argc, char **argv){
     
     int type, error;
 
+    // verification of parameters
     if (argc != 2){
         help();
         exit(1);
@@ -33,6 +45,7 @@ int main(int argc, char **argv){
 
     type = atoi(argv[1]);
 
+    // signal handlers
     signal(SIGUSR1, handle_SIGUSR1); 
     signal(SIGUSR2, handle_SIGUSR2);
     signal(SIGINT, handle_SIGINT);
