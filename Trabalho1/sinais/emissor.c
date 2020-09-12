@@ -11,10 +11,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-// help Function, called when an error occurs
-void help(){
-    printf(" Este programa recebe como parâmetros o número do processo destino e o sinal que deve ser enviado.\n\n 2) SIGINT \n10) SIGUSR1 \n12) SIGUSR2 \n\n Digite 'kill -l' para mais\n");
-}
+void help();
 
 int main(int argc, char **argv){
     
@@ -41,3 +38,7 @@ int main(int argc, char **argv){
     return signal_return;
 }
 
+// help Function, called when an error occurs
+void help(){
+    printf(" Este programa recebe como parâmetros o número do processo destino e o sinal que deve ser enviado.\n\n 2) SIGINT \n10) SIGUSR1 \n12) SIGUSR2 \n\n Digite 'kill -l' para mais\n");
+}

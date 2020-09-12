@@ -10,26 +10,8 @@
 #include <time.h>
 #include <wait.h>
 
-int is_prime(int numero){
-    if (numero <= 3){
-        return 1;
-    }else if(numero % 2 == 0 || numero % 3 == 0){
-        return 0;
-    }
-    int i = 5;
-    while (i * i <= numero){
-        if(numero % i == 0 || numero % (i+2) == 0){
-            return 0;
-        }
-        i += 6;
-    }
-    return 1;
-}
-
-// help Function, called when an error occurs
-void help(){
-    printf("Este programa recebe como parâmetros o números de números a serem gerados (ex.1000");
-}
+int is_prime(int numero);
+void help();
 
 int main(int argc, char **argv){
     int limit, fork_return;
@@ -71,6 +53,7 @@ int main(int argc, char **argv){
             printf("Número produzido: %d\n", delta);
             sprintf(mensage, "%d", delta);
             write(fd1[1], mensage, 20);
+            //sleep(1);
         }
 
         sprintf(mensage, "%d", 0);
@@ -106,4 +89,25 @@ int main(int argc, char **argv){
     }
 
     return 0;
+}
+
+int is_prime(int numero){
+    if (numero <= 3){
+        return 1;
+    }else if(numero % 2 == 0 || numero % 3 == 0){
+        return 0;
+    }
+    int i = 5;
+    while (i * i <= numero){
+        if(numero % i == 0 || numero % (i+2) == 0){
+            return 0;
+        }
+        i += 6;
+    }
+    return 1;
+}
+
+// help Function, called when an error occurs
+void help(){
+    printf("Este programa recebe como parâmetros o números de números a serem gerados (ex.1000");
 }

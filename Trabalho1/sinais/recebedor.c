@@ -11,26 +11,10 @@
 #include <unistd.h>
 #include <signal.h>
 
-// help Function, called when an error occurs
-void help(){
-    printf("Este programa recebe como parâmetros o número 0 para busy wait e 1 para blocking wait.\n");
-}
-
-// Function called when signal SIGUSR1 is received
-void handle_SIGUSR1(int signal){
-    printf("SIGUSR1 recebido.\n");
-}
-
-// Function called when signal SIGUSR2 is received
-void handle_SIGUSR2(int signal){
-    printf("SIGUSR2 recebido.\n");
-}
-
-// Function called when signal SIGINT is received
-void handle_SIGINT(int signal){
-    printf("SIGINT recebido.\n");
-    exit(0);
-}
+void help();
+void handle_SIGUSR1(int signal);
+void handle_SIGUSR2(int signal);
+void handle_SIGINT(int signal);
 
 int main(int argc, char **argv){
     
@@ -66,3 +50,23 @@ int main(int argc, char **argv){
     return 0;
 }
 
+// help Function, called when an error occurs
+void help(){
+    printf("Este programa recebe como parâmetros o número 0 para busy wait e 1 para blocking wait.\n");
+}
+
+// Function called when signal SIGUSR1 is received
+void handle_SIGUSR1(int signal){
+    printf("SIGUSR1 recebido.\n");
+}
+
+// Function called when signal SIGUSR2 is received
+void handle_SIGUSR2(int signal){
+    printf("SIGUSR2 recebido.\n");
+}
+
+// Function called when signal SIGINT is received
+void handle_SIGINT(int signal){
+    printf("SIGINT recebido.\n");
+    exit(0);
+}
