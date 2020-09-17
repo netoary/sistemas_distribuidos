@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
     int received_num;
 
     // read from socket and test if is "0"
-    while(read(new_socket , message, 20) != -1 && atoi(message) != 0 ) { //  strcmp(message, "0"))
+    while(read(new_socket , message, 20) != -1 && atoi(message) != 0 ) {
         
         printf("Received number: %s\n", message);
         
