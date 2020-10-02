@@ -7,22 +7,7 @@
 #include <string.h> 
 #define PORT 8080 
 
-int is_prime(int numero){
-    //from https://en.wikipedia.org/wiki/Primality_test
-    if (numero <= 3){
-        return 1;
-    }else if(numero % 2 == 0 || numero % 3 == 0){
-        return 0;
-    }
-    int i = 5;
-    while (i * i <= numero){
-        if(numero % i == 0 || numero % (i+2) == 0){
-            return 0;
-        }
-        i += 6;
-    }
-    return 1;
-}
+int is_prime(int numero);
 
 int main(int argc, char const *argv[]) 
 {   
@@ -97,4 +82,21 @@ int main(int argc, char const *argv[])
 
     printf("Finished\n");     
     return 0; 
-} 
+}
+
+int is_prime(int numero){
+    //from https://en.wikipedia.org/wiki/Primality_test
+    if (numero <= 3){
+        return 1;
+    }else if(numero % 2 == 0 || numero % 3 == 0){
+        return 0;
+    }
+    int i = 5;
+    while (i * i <= numero){
+        if(numero % i == 0 || numero % (i+2) == 0){
+            return 0;
+        }
+        i += 6;
+    }
+    return 1;
+}

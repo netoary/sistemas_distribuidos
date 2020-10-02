@@ -6,9 +6,7 @@
 #include <string.h> 
 #define PORT 8080
 
-void help(){
-    printf("Este programa recebe como parâmetros a quantidade de números a serem gerados (ex.1000");
-}
+void help();
 
 int main(int argc, char const *argv[]) 
 {   
@@ -83,4 +81,8 @@ int main(int argc, char const *argv[])
 
     printf("Finished\n"); 
     return 0; 
-} 
+}
+
+void help(){
+    printf("Este programa recebe como parâmetros a quantidade de números a serem gerados (ex.1000");
+}
