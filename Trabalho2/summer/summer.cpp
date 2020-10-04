@@ -9,6 +9,11 @@
 #include <iomanip>      // std::setprecision
 using namespace std;
 
+struct args {
+    int index;
+    int numbers;
+};
+
 class SpinLock {
     atomic_flag locked = ATOMIC_FLAG_INIT ;
 public:
@@ -21,44 +26,84 @@ public:
 };
 
 SpinLock lock;
+vector<int8_t> list_num;
+int result;
+cpu_set_t cpus;
 
 
-void sum(int index, int numbers,vector<int8_t> *list_num, int *result){
+void *sum(void *input){
+
+  int index = ((struct args*)input)->index;
+  int numbers = ((struct args*)input)->numbers;
 
   int mini_result = 0;
   for (int i = index; i < index + numbers; i++) { 
-    mini_result += list_num->at(i);
+    mini_result += list_num[i];
   }
 
   lock.lock();
-  *result = *result + mini_result;
+  result = result + mini_result;
   lock.unlock();
 
 } 
 
-void test_sum(int n, int k, vector<int8_t> list_num){
+void test_sum(int n, int k){
 
-  vector<thread> threads;
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
 
-  int result = 0;
+  result = 0;
   int resto = n%k;
   int numbers = n/k;
 
+  int num_threads = k;
+
+  if (resto > 0){
+    num_threads++;
+  }
+  
+    cout << num_threads << endl;
+  pthread_t threads[num_threads];
   struct timeval start, end; 
 
+  gettimeofday(&start, NULL);
   for (int i=0; i < k; i ++){
-    threads.push_back(thread(sum,i*numbers,numbers, &list_num, &result));
+    
+    CPU_ZERO(&cpus);
+    CPU_SET(i%8, &cpus);
+  
+    args *argsToFunc = (struct args *)malloc(sizeof(struct args));
+    argsToFunc->index = i*numbers;
+    argsToFunc->numbers = numbers;
+    
+    pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus);
+        
+    pthread_create(&threads[i], &attr, sum, (void *) argsToFunc); //(int*) i*numbers, (int*)numbers
   }
 
   if(resto != 0){
-    threads.push_back(thread(sum, numbers*k,resto, &list_num, &result));
+    
+    CPU_ZERO(&cpus);
+    CPU_SET(k%8, &cpus);
+
+    args *argsToFunc = (struct args *)malloc(sizeof(struct args));
+    argsToFunc->index = k*numbers;
+    argsToFunc->numbers = resto;
+
+    pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpus);
+        
+    pthread_create(&threads[k], &attr, sum, (void *) argsToFunc);
   }
 
-  gettimeofday(&start, NULL);
-
+  /*
   for (int i = 0; i < threads.size(); i++){
     threads[i].join();
   } 
+  */
+
+  for( int i=0; i < num_threads; i++){
+    pthread_join(threads[i], NULL);
+  }
 
   gettimeofday(&end, NULL);
 
@@ -87,18 +132,16 @@ int main(){
     cout << current_n << " números\n";
 
     for(int j = 0; j < Ks.size(); j++){
-      cout << Ks[i] << " Ks\n";
+      cout << Ks[j] << " Ks\n";
 
-      int current_k = Ks[i];
+      int current_k = Ks[j];
       for(int k = 0; k < 10; k++){
         cout << "execução " << k << " \n";
-
-        vector<int8_t> current_vector(current_n, 0);
+        list_num = vector<int8_t>(current_n, 0);
         for(int l = 0; l < current_n; l++){
-          current_vector[i] = (100 - rand()*200);
+          list_num[l] = (100 - rand()*200);
         }
-
-        test_sum(current_n, current_k, current_vector);
+        test_sum(current_n, current_k);
 
       }
 
