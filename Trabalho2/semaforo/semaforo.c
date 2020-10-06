@@ -1,7 +1,7 @@
 /*
 * References:
 * https://shivammitra.com/c/producer-consumer-problem-in-c/#
-*https://medium.com/@sohamshah456/producer-consumer-programming-with-c-d0d47b8f103f
+* https://medium.com/@sohamshah456/producer-consumer-programming-with-c-d0d47b8f103f
 
 
 * compile:
@@ -48,9 +48,9 @@ int main(int argc, char** argv)
     // Recupera os parâmetros passados
     int producer_number = atoi(argv[1]);
     int consumer_number =  atoi(argv[2]);
-    // int bufferSize =  atoi(argv[3]);
+    bufferSize =  atoi(argv[3]);
 
-    if (producer_number == 0 || consumer_number == 0)
+    if (producer_number == 0 || consumer_number == 0 || bufferSize == 0)
     {
         help();
         exit(1);
