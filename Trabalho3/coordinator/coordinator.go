@@ -5,20 +5,75 @@ import (
 	"container/list"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
+	"sync"
 )
 
-var process int = 1
+type Process struct {
+	connection (net.Conn)
+	times      (int)
+}
 
-var connections map[int]net.Conn
+func (p Process) Inc() {
+	p.times = p.times + 1
+}
+
+var numProcess int = 1
+
+var processes map[int]Process
 
 var requests list.List
 
+var mutex = sync.RWMutex{}
+
 func giveGrant(processNumber int) {
-
 	var message string = "2|" + strconv.Itoa(processNumber) + "\n"
-	fmt.Fprintf(connections[processNumber], message)
+	fmt.Fprintf(processes[processNumber].connection, message)
+	processes[processNumber].Inc()
+}
 
+func killProcess() {
+	for processNumber, process := range processes {
+		var message string = "5|" + strconv.Itoa(processNumber) + "\n"
+		fmt.Fprintf(process.connection, message)
+	}
+	os.Exit(0)
+}
+
+func printListofRequests() {
+	mutex.Lock()
+	for e := requests.Front(); e != nil; e = e.Next() {
+		fmt.Print(e.Value)
+		fmt.Print(" ")
+	}
+	fmt.Print("\n")
+	mutex.Unlock()
+}
+
+func printRequestsOfProcesses() {
+	for processNumber, process := range processes {
+		fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.times))
+	}
+	fmt.Print("\n")
+}
+
+func listenTerminal() {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("Enter text: ")
+		byte, _ := reader.ReadByte()
+
+		switch string(byte) {
+		case "p":
+			printListofRequests()
+		case "t":
+			printRequestsOfProcesses()
+		case "k":
+			killProcess()
+		}
+	}
 }
 
 func createConnectionWithProccess(processNumber int) {
@@ -26,27 +81,38 @@ func createConnectionWithProccess(processNumber int) {
 	addr := ":" + strconv.Itoa(8000+processNumber)
 	ln, _ := net.Listen("tcp", addr)
 
+	// Connection Accepted with new process
 	conn, _ := ln.Accept()
 
-	connections[processNumber] = conn
+	p := Process{
+		connection: conn,
+		times:      0,
+	}
 
+	processes[processNumber] = p
+
+	c := bufio.NewReader(conn)
 	for {
-
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-
-		if string(message[0]) == "1" {
-			if requests.Len() == 0 {
-				giveGrant(processNumber)
+		message, _, _ := c.ReadLine()
+		if len(message) > 0 {
+			if string(message[0]) == "1" {
+				mutex.Lock()
+				if requests.Len() == 0 {
+					giveGrant(processNumber)
+				}
+				id, _ := strconv.Atoi(string(message[2]))
+				requests.PushBack(id)
+				mutex.Unlock()
 			}
-			id, _ := strconv.Atoi(string(message[2]))
-			requests.PushBack(id)
-		}
 
-		if string(message[0]) == "3" {
-			requests.Remove(requests.Front())
-			if requests.Len() != 0 {
-				id := requests.Front().Value.(int)
-				giveGrant(id)
+			if string(message[0]) == "3" {
+				mutex.Lock()
+				requests.Remove(requests.Front())
+				if requests.Len() != 0 {
+					id := requests.Front().Value.(int)
+					giveGrant(id)
+				}
+				mutex.Unlock()
 			}
 		}
 
@@ -55,25 +121,32 @@ func createConnectionWithProccess(processNumber int) {
 }
 
 func main() {
-	fmt.Println("Start server...")
+
+	processes = make(map[int]Process)
+
+	go listenTerminal()
 
 	// listen on port 8000
 	ln, _ := net.Listen("tcp", ":8000")
 
 	for {
 		conn, _ := ln.Accept()
-		fmt.Println("Connection Accepted")
+
 		// get message, output
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Message Received:", string(message))
+		message, _, _ := bufio.NewReader(conn).ReadLine()
 
-		fmt.Fprintf(conn, strconv.Itoa(process)+"\n")
-		fmt.Print("Message sended:", strconv.Itoa(process))
+		if string(message) == "1" {
+			// send to procces its id
+			fmt.Fprintf(conn, strconv.Itoa(numProcess)+"\n")
 
-		conn.Close()
+			// close actual connection to make it possible to another process to connect
+			conn.Close()
 
-		go createConnectionWithProccess(process)
+			// create a unique connection with new process
+			go createConnectionWithProccess(numProcess)
 
-		process++
+			// increment id for next process
+			numProcess++
+		}
 	}
 }

@@ -6,12 +6,11 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
-var process int
-var port int
+var Process int
+var Port int
 
 func check(e error) {
 	if e != nil {
@@ -19,48 +18,64 @@ func check(e error) {
 	}
 }
 
-func requestGrant(conn net.Conn) {
-	var processString string = strconv.Itoa(process)
+func killMyself() {
+	os.Exit(0)
+}
+
+func requestGrant(Process int, conn net.Conn) {
+	fmt.Println("Request Grant")
+
+	var processString string = strconv.Itoa(Process)
+
 	// ask for access
 	var message string = "1|" + processString + "\n"
 	fmt.Fprintf(conn, message)
 
 	myTurn := false
 
+	// test if process time
 	for !myTurn {
-		message, _ := bufio.NewReader(conn).ReadString('\n')
+		// read message from buffer
+		message, _, _ := bufio.NewReader(conn).ReadLine()
 
-		if string(message[0]) == "2" && string(message[2]) == processString {
-			myTurn = true
+		// test message
+		if string(message) != "" {
+
+			// if message if for this process change myTurn to True
+			if string(message[0]) == "2" && string(message[2]) == processString {
+				myTurn = true
+			}
+
+			// if receive message if 5 kill process
+			if string(message[0]) == "5" && string(message[2]) == processString {
+				killMyself()
+			}
+
 		}
-
 	}
 
 }
 
-func releaseGrant(conn net.Conn) {
-
-	// release grant
-	var message string = "3|" + strconv.Itoa(process) + "\n"
+func releaseGrant(Process int, conn net.Conn) {
+	fmt.Println("Release Grant")
+	var message string = "3|" + strconv.Itoa(Process) + "\n"
 	fmt.Fprintf(conn, message)
-
 }
 
-func write(conn net.Conn) {
+func write(Process int, conn net.Conn) {
 
 	for {
-		requestGrant(conn)
-		f, err := os.Create("./resultado.txt")
+		requestGrant(Process, conn)
+		f, err := os.OpenFile("./resultado.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		check(err)
 
-		txt, err := f.WriteString(time.Now().Format("00:00:00.0000"))
-		check(err)
-		fmt.Printf("%d", txt)
+		f.WriteString(strconv.Itoa(Process) + " " + time.Now().Format("02/1/06 15:04:05.9999") + "\n")
+
+		time.Sleep(1 * time.Second)
+
 		f.Close()
 
-		releaseGrant(conn)
-
-		time.Sleep(5 * time.Second)
+		releaseGrant(Process, conn)
 	}
 
 }
@@ -68,31 +83,40 @@ func write(conn net.Conn) {
 func main() {
 
 	// connect to server
-	conn1, err := net.Dial("tcp", "127.0.0.1:8000")
+
+	var initialConn net.Conn
 
 	fmt.Println("Waiting...")
-	check(err)
+	for initialConn == nil {
+		initialConn, _ = net.Dial("tcp", "127.0.0.1:8000")
+	}
+	fmt.Println("Connection stablished")
 
 	// ask for id
-	fmt.Fprintf(conn1, strconv.Itoa(1)+"\n")
+	fmt.Fprintf(initialConn, strconv.Itoa(1)+"\n")
 
 	// wait id
-	message, _ := bufio.NewReader(conn1).ReadString('\n')
-	fmt.Print("Message Received: ", message)
+	message, _, _ := bufio.NewReader(initialConn).ReadLine()
 
-	message = strings.Replace(message, "\n", "", 1)
 	// store id
+	Process, _ := strconv.Atoi(string(message))
+	fmt.Println("Process :", Process)
 
-	pr, _ := strconv.Atoi(message)
-	conn1.Close()
+	//close connection to gain access
+	initialConn.Close()
 
-	fmt.Print(process)
-	port = 8000 + int(pr)
+	// store new Port
+	Port = 8000 + int(Process)
+	fmt.Println("Port: ", Port)
 
-	fmt.Println(int(pr))
-	fmt.Println(port)
-	conn, err := net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(port))
+	// Wait for new connection
+	var conn net.Conn
+	fmt.Println("Waiting new connection...")
+	for conn == nil {
+		conn, _ = net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(Port))
+	}
+	fmt.Println("Connection stablished")
 
-	write(conn)
+	write(Process, conn)
 
 }
