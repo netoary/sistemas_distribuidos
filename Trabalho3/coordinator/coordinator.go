@@ -15,13 +15,19 @@ type Process struct {
 	times      (int)
 }
 
-func (p Process) Inc() {
-	p.times = p.times + 1
+// func (p Process) Inc() {
+// 	p.times = p.times + 1
+// }
+func (self *Process) Inc() {
+	self.times++
+}
+func (self Process) currentValue() int {
+	return self.times
 }
 
 var numProcess int = 1
 
-var processes map[int]Process
+var processes map[int]*Process
 
 var requests list.List
 
@@ -53,7 +59,8 @@ func printListofRequests() {
 
 func printRequestsOfProcesses() {
 	for processNumber, process := range processes {
-		fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.times))
+		// fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.times))
+		fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.currentValue()))
 	}
 	fmt.Print("\n")
 }
@@ -89,7 +96,7 @@ func createConnectionWithProccess(processNumber int) {
 		times:      0,
 	}
 
-	processes[processNumber] = p
+	processes[processNumber] = &p
 
 	c := bufio.NewReader(conn)
 	for {
@@ -122,7 +129,7 @@ func createConnectionWithProccess(processNumber int) {
 
 func main() {
 
-	processes = make(map[int]Process)
+	processes = make(map[int]*Process)
 
 	go listenTerminal()
 
