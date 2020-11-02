@@ -73,11 +73,11 @@ func listenTerminal() {
 		byte, _ := reader.ReadByte()
 
 		switch string(byte) {
-		case "p":
+		case "1":
 			printListofRequests()
-		case "t":
+		case "2":
 			printRequestsOfProcesses()
-		case "k":
+		case "3":
 			killProcess()
 		}
 	}
