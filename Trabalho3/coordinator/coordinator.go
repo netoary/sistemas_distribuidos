@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -34,14 +35,25 @@ var requests list.List
 var mutex = sync.RWMutex{}
 
 func giveGrant(processNumber int) {
-	var message string = "2|" + strconv.Itoa(processNumber) + "\n"
+	var message string = "2|" + strconv.Itoa(processNumber) + "|"
+	for len(message) != 10 {
+		// fmt.Print(strings.Split(message, "|"))
+		message = message + strconv.Itoa(0)
+	}
+	message = message + "\n"
 	fmt.Fprintf(processes[processNumber].connection, message)
 	processes[processNumber].Inc()
 }
 
 func killProcess() {
 	for processNumber, process := range processes {
-		var message string = "5|" + strconv.Itoa(processNumber) + "\n"
+		// var message string = "5|" + strconv.Itoa(processNumber) + "\n"
+		var message string = "5|" + strconv.Itoa(processNumber) + "|"
+		for len(message) != 10 {
+			// fmt.Print(strings.Split(message, "|"))
+			message = message + strconv.Itoa(0)
+		}
+		message = message + "\n"
 		fmt.Fprintf(process.connection, message)
 	}
 	os.Exit(0)
@@ -107,7 +119,8 @@ func createConnectionWithProccess(processNumber int) {
 				if requests.Len() == 0 {
 					giveGrant(processNumber)
 				}
-				id, _ := strconv.Atoi(string(message[2]))
+				processId := strings.Split(string(message), "|")
+				id, _ := strconv.Atoi(processId[1])
 				requests.PushBack(id)
 				mutex.Unlock()
 			}

@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -50,14 +51,14 @@ func requestGrant(Process int, conn net.Conn) {
 
 		// test message
 		if string(message) != "" {
-
+			processId := strings.Split(string(message), "|")
 			// if message if for this process change myTurn to True
-			if string(message[0]) == "2" && string(message[2]) == processString {
+			if string(message[0]) == "2" && string(processId[1]) == processString {
 				myTurn = true
 			}
 
 			// if receive message if 5 kill process
-			if string(message[0]) == "5" && string(message[2]) == processString {
+			if string(message[0]) == "5" && string(processId[1]) == processString {
 				killMyself()
 			}
 
