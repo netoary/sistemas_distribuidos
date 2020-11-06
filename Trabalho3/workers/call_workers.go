@@ -106,40 +106,6 @@ func main() {
 	var r_input, _ = strconv.Atoi(args[1])
 	var k_input, _ = strconv.Atoi(args[2])
 
-	// // connect to server
-	// var initialConn net.Conn
-
-	// fmt.Println("Waiting...")
-	// for initialConn == nil {
-	// 	initialConn, _ = net.Dial("tcp", "127.0.0.1:8000")
-	// }
-	// fmt.Println("Connection stablished")
-
-	// // ask for id
-	// fmt.Fprintf(initialConn, strconv.Itoa(1)+"\n")
-
-	// // wait id
-	// message, _, _ := bufio.NewReader(initialConn).ReadLine()
-
-	// // store id
-	// Process, _ := strconv.Atoi(string(message))
-	// fmt.Println("Process :", Process)
-
-	// //close connection to gain access
-	// initialConn.Close()
-
-	// // store new Port
-	// Port = 8000 + int(Process)
-	// fmt.Println("Port: ", Port)
-
-	// // Wait for new connection
-	// var conn net.Conn
-	// fmt.Println("Waiting new connection...")
-	// for conn == nil {
-	// 	conn, _ = net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(Port))
-	// }
-	// fmt.Println("Connection stablished")
-
 	var connections []net.Conn
 	for i := 0; i < n_input; i++ {
 		wg.Add(1)
@@ -187,15 +153,11 @@ func main() {
 		}()
 		wg.Wait()
 	}
-	// fmt.Println(processes, r_input, k_input)
 
 	// for i := range connections {
 	for processNumber, process := range processes {
 		wg.Add(1)
 		go write(processNumber, process.connection, r_input, k_input)
-		// fmt.Println(connections[i])
 	}
 	wg.Wait()
-	//write(Process, conn, r_input, k_input)
-
 }

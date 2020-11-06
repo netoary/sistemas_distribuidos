@@ -16,9 +16,6 @@ type Process struct {
 	times      (int)
 }
 
-// func (p Process) Inc() {
-// 	p.times = p.times + 1
-// }
 func (self *Process) Inc() {
 	self.times++
 }
@@ -35,25 +32,14 @@ var requests list.List
 var mutex = sync.RWMutex{}
 
 func giveGrant(processNumber int) {
-	var message string = "2|" + strconv.Itoa(processNumber) + "|"
-	for len(message) != 10 {
-		// fmt.Print(strings.Split(message, "|"))
-		message = message + strconv.Itoa(0)
-	}
-	message = message + "\n"
+	var message string = "2|" + strconv.Itoa(processNumber) + "|" + "\n"
 	fmt.Fprintf(processes[processNumber].connection, message)
 	processes[processNumber].Inc()
 }
 
 func killProcess() {
 	for processNumber, process := range processes {
-		// var message string = "5|" + strconv.Itoa(processNumber) + "\n"
-		var message string = "5|" + strconv.Itoa(processNumber) + "|"
-		for len(message) != 10 {
-			// fmt.Print(strings.Split(message, "|"))
-			message = message + strconv.Itoa(0)
-		}
-		message = message + "\n"
+		var message string = "5|" + strconv.Itoa(processNumber) + "|" + "\n"
 		fmt.Fprintf(process.connection, message)
 	}
 	os.Exit(0)
@@ -71,7 +57,6 @@ func printListofRequests() {
 
 func printRequestsOfProcesses() {
 	for processNumber, process := range processes {
-		// fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.times))
 		fmt.Println(strconv.Itoa(processNumber) + " " + strconv.Itoa(process.currentValue()))
 	}
 	fmt.Print("\n")
