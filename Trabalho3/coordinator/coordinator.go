@@ -67,9 +67,9 @@ func listenTerminal() {
 
 	for {
 		fmt.Print("Enter text: ")
-		byte, _ := reader.ReadByte()
+		byte, _, _ := reader.ReadLine()
 
-		switch string(byte) {
+		switch string(byte[0]) {
 		case "1":
 			printListofRequests()
 		case "2":
